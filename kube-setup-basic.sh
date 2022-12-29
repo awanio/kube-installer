@@ -51,7 +51,6 @@ controlPlaneEndpoint: "${CONTROL_PLANE_ENDPOINT}"
 networking:
   podSubnet: "${POD_SUBNET}"
   serviceSubnet: "${SERVICE_SUBNET}"
-  # dnsDomain: "cloud.aw"
 ---
 kind: KubeletConfiguration
 apiVersion: kubelet.config.k8s.io/v1beta1
