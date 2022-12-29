@@ -1,0 +1,26 @@
+apiVersion: awanio.io/v1alpha1
+kind: ClusterConfig
+spec:
+  kubernetesVersion: v1.24.3
+  networking:
+    cniVendor: calico
+    subnets:
+      pod: 10.0.0.0/16
+      service: 10.1.0.0/16
+    ingressExternalIPs:
+      - 172.31.31.19
+      - 108.137.91.215
+  storage:
+    csiVendor: longhorn
+  nodes:
+    - name: node1
+      role: control-plane-worker
+      internalIP: 172.31.31.19/20
+    - name: node2
+      role: worker
+      internalIP: 172.31.31.19/20
+      user: ubuntu
+        sshPort: "22"
+        sshPrikeyFile: /home/ubuntu/.ssh/id_rsa
+        internalIP: 172.31.17.44/20
+  
