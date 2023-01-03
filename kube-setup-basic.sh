@@ -89,6 +89,10 @@ if [[ "$CNI_VENDOR" == "kube-ovn" ]]; then
   
   chmod +x ./kube-ovn-install.sh
   bash ./kube-ovn-install.sh
+  
+  kubectl -n kube-system rollout status deployment/ovn-central --timeout 300s
+  kubectl -n kube-system rollout status deployment/kube-ovn-controller --timeout 300s
+  kubectl -n kube-system rollout status daemonset/kube-ovn-cni --timeout 300s
 
 fi
 
