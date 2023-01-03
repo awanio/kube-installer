@@ -3,14 +3,14 @@
 THIS_OS="$(cat /etc/os-release | grep "PRETTY_NAME" | sed 's/PRETTY_NAME=//g' | sed 's/["]//g' | awk '{print $1}')"
 
 KUBERNETES_VERSION="v1.24.3"
+CNI_VENDOR="calico"
 CALICO_VERSION="v3.22.2"
 CALICO_SHORT_VERSION="v3.22"
 CALICO_IP_AUTODETECTION_METHOD="can-reach=192.168.8.1"
-KUBERNETES_API_PORT="3774"
-CNI_VENDOR="calico"
 POD_SUBNET="10.0.0.0/16"
 POD_GATEWAY="10.0.0.1"
 SERVICE_SUBNET="10.1.0.0/16"
+KUBEOVN_VERSION="v1.10.7"
 
 
 echo "Pull Kubernetes container images"
@@ -30,21 +30,21 @@ if [[ "$CNI_VENDOR" == "calico" ]]; then
   /usr/local/bin/nerdctl -n k8s.io pull docker.io/calico/apiserver:${CALICO_VERSION}
 fi
 
+if [[ "$CNI_VENDOR" == "kube-ovn" ]]; then
+  /usr/local/bin/nerdctl -n k8s.io pull docker.io/kubeovn/kube-ovn:${KUBEOVN_VERSION}
+fi
+
 echo "Init Kubernetes cluster"
 
 cat <<EOF | tee kubeadm-config.yaml
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: InitConfiguration
-localAPIEndpoint:
-  advertiseAddress: "${CONTROL_PLANE_PRIVATE_STATIC_IP}"
-  bindPort: ${KUBERNETES_API_PORT}
 nodeRegistration:
   criSocket: "unix:///run/containerd/containerd.sock"
 ---
 kind: ClusterConfiguration
 apiVersion: kubeadm.k8s.io/v1beta3
 kubernetesVersion: ${KUBERNETES_VERSION}
-controlPlaneEndpoint: "${CONTROL_PLANE_ENDPOINT}"
 networking:
   podSubnet: "${POD_SUBNET}"
   serviceSubnet: "${SERVICE_SUBNET}"
@@ -77,6 +77,18 @@ if [[ "$CNI_VENDOR" == "calico" ]]; then
 
 fi
 
-mkdir -p $HOME/.kube
-cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-chown $(id -u):$(id -g) $HOME/.kube/config
+if [[ "$CNI_VENDOR" == "kube-ovn" ]]; then
+   
+    # Enable KubeOVN as CNI
+  wget https://raw.githubusercontent.com/kubeovn/kube-ovn/release-1.10/dist/images/install.sh -O kube-ovn-install.sh
+
+  export POD_SUBNET=${POD_SUBNET}
+  export POD_GATEWAY=${POD_GATEWAY}
+  export SERVICE_SUBNET=${SERVICE_SUBNET}
+  export KUBEOVN_JOIN_CIDR=${KUBEOVN_JOIN_CIDR}
+  
+  chmod +x ./kube-ovn-install.sh
+  bash ./kube-ovn-install.sh
+
+fi
+
