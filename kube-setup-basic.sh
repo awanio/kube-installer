@@ -76,3 +76,7 @@ if [[ "$CNI_VENDOR" == "calico" ]]; then
   kubectl -n kube-system rollout status ds/calico-node --timeout 300s
 
 fi
+
+mkdir -p $HOME/.kube
+cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+chown $(id -u):$(id -g) $HOME/.kube/config
