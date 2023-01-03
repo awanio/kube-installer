@@ -22,9 +22,6 @@ tar Cxzvvf /usr/local/bin /tmp/nerdctl-${NERDCTL_VERSION}-linux-amd64.tar.gz
 
 /usr/local/bin/nerdctl version
 
-echo "Install Helm"
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
 if [[ "$CNI_VENDOR" == "calico" ]]; then
   /usr/local/bin/nerdctl -n k8s.io pull docker.io/calico/cni:${CALICO_VERSION}
   /usr/local/bin/nerdctl -n k8s.io pull docker.io/calico/pod2daemon-flexvol:${CALICO_VERSION}
