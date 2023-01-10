@@ -3,6 +3,7 @@
 THIS_OS="$(cat /etc/os-release | grep "PRETTY_NAME" | sed 's/PRETTY_NAME=//g' | sed 's/["]//g' | awk '{print $1}')"
 
 KUBERNETES_VERSION="v1.24.3"
+NERDCTL_VERSION="0.19.0"
 CNI_VENDOR="calico"
 CALICO_VERSION="v3.22.2"
 CALICO_SHORT_VERSION="v3.22"
